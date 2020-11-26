@@ -4,13 +4,13 @@
 
 class connection:
 	server     = 'irc.supernets.org'
-	port       = 6667
+	port       = 6697
 	proxy      = None
 	ipv6       = False
-	ssl        = False
+	ssl        = True
 	ssl_verify = False
 	vhost      = None
-	channel    = '#500'
+	channel    = '#dev'
 	key        = None
 
 class cert:
@@ -19,12 +19,12 @@ class cert:
 	password = None
 
 class ident:
-	nickname = 'WORMSEC'
-	username = 'wormsec'
-	realname = '48 0 US 3.7.2.1'
+	nickname = 'DevBot'
+	username = 'devbot'
+	realname = 'acid.vegas/skeleton'
 
 class login:
-	network  = 'ELSILRACLIHP'
+	network  = None
 	nickserv = None
 	operator = None
 

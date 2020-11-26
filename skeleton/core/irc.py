@@ -261,7 +261,6 @@ class Events:
 		elif args[1] == constants.JOIN and len(args) == 3:
 			nick = args[0].split('!')[0][1:]
 			chan = args[2][1:]
-			Commands.raw('WHOIS SNIFF')
 			Events.join_channel(nick, chan)
 		elif args[1] == constants.KICK and len(args) >= 4:
 			nick   = args[0].split('!')[0][1:]
