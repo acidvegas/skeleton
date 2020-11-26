@@ -3,14 +3,14 @@
 # config.py
 
 class connection:
-	server     = 'irc.server.com'
+	server     = 'irc.supernets.org'
 	port       = 6667
 	proxy      = None
 	ipv6       = False
 	ssl        = False
 	ssl_verify = False
 	vhost      = None
-	channel    = '#dev'
+	channel    = '#500'
 	key        = None
 
 class cert:
@@ -19,12 +19,12 @@ class cert:
 	password = None
 
 class ident:
-	nickname = 'skeleton'
-	username = 'skeleton'
-	realname = 'acid.vegas/skeleton'
+	nickname = 'WORMSEC'
+	username = 'wormsec'
+	realname = '48 0 US 3.7.2.1'
 
 class login:
-	network  = None
+	network  = 'ELSILRACLIHP'
 	nickserv = None
 	operator = None
 

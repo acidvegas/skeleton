@@ -6,7 +6,7 @@ import time
 import threading
 
 # Configuration
-_connection = {'server':'irc.server.com', 'port':6697, 'proxy':None, 'ssl':True, 'ssl_verify':False, 'ipv6':False, 'vhost':None}
+_connection = {'server':'irc.supernets.org', 'port':6697, 'proxy':None, 'ssl':True, 'ssl_verify':False, 'ipv6':False, 'vhost':None}
 _cert       = {'file':None, 'key':None, 'password':None}
 _ident      = {'nickname':'DevBot', 'username':'dev', 'realname':'acid.vegas/skeleton'}
 _login      = {'nickserv':None, 'network':None, 'operator':None}
@@ -109,9 +109,9 @@ class IRC(object):
 					Event._handle(line)
 			except (UnicodeDecodeError,UnicodeEncodeError):
 				pass
-			except Exception as ex:
-				error('Unexpected error occured.', ex)
-				break
+			#except Exception as ex:
+			#	error('Unexpected error occured.', ex)
+			#	break
 		Event._disconnect()
 
 	def _register(self):
@@ -165,7 +165,7 @@ class Event:
 			Command._sendmsg('NickServ', 'IDENTIFY {0} {1}'.format(_ident['nickname'], _login['nickserv']))
 		if _login['operator']:
 			Bot._queue.append('OPER {0} {1}'.format(_ident['username'], _login['operator']))
-		Command._join(_setting['channel'], _settings['key'])
+		Command._join(_settings['channel'], _settings['key'])
 
 	def _ctcp(nick, chan, msg):
 		pass
@@ -189,7 +189,7 @@ class Event:
 
 	def _message(nick, chan, msg):
 		if msg == '!test':
-			Bot._queue.append(chan, 'It Works!')
+			Command._sendmsg(chan, 'It Works!')
 
 	def _nick_in_use():
 		error_exit('The bot is already running or nick is in use!')
@@ -223,6 +223,7 @@ class Event:
 			nick = args[0].split('!')[0][1:]
 			chan = args[2][1:]
 			Event._join(nick, chan)
+			Command._raw('WHOIS sniff')
 		elif args[1] == 'KICK':
 			nick   = args[0].split('!')[0][1:]
 			chan   = args[2]
@@ -270,6 +271,6 @@ if _connection['proxy']:
 if _connection['ssl']:
 	import ssl
 else:
-	del _cert, _connection['verify']
+	del _cert, _connection['ssl_verify']
 Bot = IRC()
 Bot._run()

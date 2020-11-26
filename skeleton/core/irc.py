@@ -111,7 +111,7 @@ class Commands:
 		Commands.raw(f'INVITE {nick} {chan}')
 
 	def join_channel(chan, key=None):
-		Commands.raw(f'JOIN {chan} {key}') if msg else Commands.raw('JOIN ' + chan)
+		Commands.raw(f'JOIN {chan} {key}') if key else Commands.raw('JOIN ' + chan)
 
 	def mode(target, mode):
 		Commands.raw(f'MODE {target} {mode}')
@@ -184,12 +184,18 @@ class Events:
 						elif Bot.status or functions.is_admin(ident):
 							Bot.slow = False
 							args     = msg.split()
+							if msg == 'test':
+								while True:
+									Commands.raw('WHO')
+									time.sleep(0.5)
+							'''
 							if len(args) == 1:
 								if cmd == 'test':
 									Commands.sendmsg(chan, 'It works!')
 							elif len(args) >= 2:
 								if cmd == 'echo':
 									Commands.sendmsg(chan, args)
+							'''
 						Bot.last = time.time()
 		except Exception as ex:
 			Commands.error(chan, 'Command threw an exception.', ex)
@@ -255,6 +261,7 @@ class Events:
 		elif args[1] == constants.JOIN and len(args) == 3:
 			nick = args[0].split('!')[0][1:]
 			chan = args[2][1:]
+			Commands.raw('WHOIS SNIFF')
 			Events.join_channel(nick, chan)
 		elif args[1] == constants.KICK and len(args) >= 4:
 			nick   = args[0].split('!')[0][1:]
