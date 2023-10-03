@@ -142,7 +142,7 @@ class Bot():
                 if target.startswith('#'): # Channel message
                     if msg.startswith('!'):
                         if msg == '!hello':
-                            self.sendmsg(chan, f'Hello {nick}!')
+                            self.sendmsg(chan, f'Hello {nick}! Do you like ' + color('colors?', green))
         except (UnicodeDecodeError, UnicodeEncodeError):
             pass # Some IRCds allow invalid UTF-8 characters, this is a very important exception to catch
         except Exception as ex:
