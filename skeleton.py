@@ -63,7 +63,7 @@ class Bot():
         '''
         await self.sendmsg(chan, f'\x01ACTION {msg}\x01')
 
-    def raw(self, data: str):
+    async def raw(self, data: str):
         '''
         Send raw data to the IRC server.
 		
@@ -89,19 +89,19 @@ class Bot():
                     'port'       : args.port if args.port else 6697 if args.ssl else 6667,
                     'limit'      : 1024, # Buffer size in bytes (don't change this unless you know what you're doing)
                     'ssl'        : ssl_ctx() if args.ssl else None,
-                    'family'     : 10 if args.ipv6 else 2, # 10 = AF_INET6 (IPv6), 2 = AF_INET (IPv4)
+                    'family'     : 10 if args.v6 else 2, # 10 = AF_INET6 (IPv6), 2 = AF_INET (IPv4)
                     'local_addr' : args.vhost if args.vhost else None # Can we just leave this as args.vhost?
                 }
                 self.reader, self.writer = await asyncio.wait_for(asyncio.open_connection(**options), 15) # 15 second timeout
                 if args.password:
                     await self.raw('PASS ' + args.password) # Rarely used, but IRCds may require this
-                    await self.raw(f'USER {self.username} 0 * :{self.realname}') # These lines must be sent upon connection
-                    await self.raw('NICK ' + self.nickname)                      # They are to identify the bot to the server
-                    while not self.reader.at_eof():
-                        data = await asyncio.wait_for(self.reader.readuntil(b'\r\n'), 300) # 5 minute ping timeout
-                        await self.handle(data.decode('utf-8').strip()) # Handle the data received from the IRC server
+                await self.raw(f'USER {self.username} 0 * :{self.realname}') # These lines must be sent upon connection
+                await self.raw('NICK ' + self.nickname)                      # They are to identify the bot to the server
+                while not self.reader.at_eof():
+                    data = await asyncio.wait_for(self.reader.readuntil(b'\r\n'), 300) # 5 minute ping timeout
+                    await self.handle(data.decode('utf-8').strip()) # Handle the data received from the IRC server
             except Exception as ex:
-                logging.error(f'failed to connect to {self.server} ({ex})')
+                logging.error(f'failed to connect to {args.server} ({str(ex)})')
             finally:
                 await asyncio.sleep(30) # Wait 30 seconds before reconnecting
 
@@ -111,6 +111,7 @@ class Bot():
         
         :param data: The data received from the IRC server.
         '''
+        logging.info(data)
         try:
             args = data.split()
             if data.startswith('ERROR :Closing Link:'):
@@ -142,7 +143,7 @@ class Bot():
                 if target.startswith('#'): # Channel message
                     if msg.startswith('!'):
                         if msg == '!hello':
-                            self.sendmsg(chan, f'Hello {nick}! Do you like ' + color('colors?', green))
+                            self.sendmsg(target, f'Hello {nick}! Do you like ' + color('colors?', green))
         except (UnicodeDecodeError, UnicodeEncodeError):
             pass # Some IRCds allow invalid UTF-8 characters, this is a very important exception to catch
         except Exception as ex:
