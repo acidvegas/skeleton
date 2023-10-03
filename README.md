@@ -7,6 +7,8 @@
 ## Information
 This is just a basic structure to help setup a bot. The bots have no use by default. It is asyncronous, can log to file, handle basic I/O, flood control, etc.
 
+An example in Python & Golang (beta) are in this repository.
+
 ## IRC RCF Reference
 - http://www.irchelp.org/protocol/rfc/
 
