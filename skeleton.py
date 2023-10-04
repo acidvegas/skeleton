@@ -113,37 +113,40 @@ class Bot():
         '''
         logging.info(data)
         try:
-            args = data.split()
+            parts = data.split()
             if data.startswith('ERROR :Closing Link:'):
                 raise Exception('BANNED')
-            if args[0] == 'PING':
-                await self.raw('PONG ' + args[1]) # Respond to the server's PING request with a PONG to prevent ping timeout
-            elif args[1] == '001': # RPL_WELCOME
+            if parts[0] == 'PING':
+                await self.raw('PONG ' + parts[1]) # Respond to the server's PING request with a PONG to prevent ping timeout
+            elif parts[1] == '001': # RPL_WELCOME
                 await self.raw(f'MODE {self.nickname} +B') # Set user mode +B (Bot)
                 await self.sendmsg('NickServ', 'IDENTIFY {self.nickname} simps0nsfan420') # Identify to NickServ
                 await self.raw('OPER MrSysadmin fartsimps0n1337') # Oper up
                 await asyncio.sleep(10) # Wait 10 seconds before joining the channel (required by some IRCds to wait before JOIN)
-                await self.raw(f'JOIN {args.channel} {args.key}') # Join the channel (if no key was provided, this will still work as the key will default to an empty string)
-            elif args[1] == '433': # ERR_NICKNAMEINUSE
+                if parts.key:
+                    await self.raw(f'JOIN {args.channel} {args.key}') # Join the channel with the key
+                else:
+                    await self.raw(f'JOIN {args.channel}')
+            elif parts[1] == '433': # ERR_NICKNAMEINUSE
                 self.nickname += '_' # If the nickname is already in use, append an underscore to the end of it
                 await self.raw('NICK ' + self.nickname) # Send the new nickname to the server
-            elif args[1] == 'KICK':
-                chan   = args[2]
-                kicked = args[3]
+            elif parts[1] == 'KICK':
+                chan   = parts[2]
+                kicked = parts[3]
                 if kicked == self.nickname:
                     await asyncio.sleep(3)
                     await self.raw(f'JOIN {chan}')
-            elif args[1] == 'PRIVMSG':
-                ident  = args[0][1:]
-                nick   = args[0].split('!')[0][1:]
-                target = args[2]
-                msg    = ' '.join(args[3:])[1:]
+            elif parts[1] == 'PRIVMSG':
+                ident  = parts[0][1:]
+                nick   = parts[0].split('!')[0][1:]
+                target = parts[2]
+                msg    = ' '.join(parts[3:])[1:]
                 if target == self.nickname:
                     pass # Handle private messages here
                 if target.startswith('#'): # Channel message
                     if msg.startswith('!'):
                         if msg == '!hello':
-                            self.sendmsg(target, f'Hello {nick}! Do you like ' + color('colors?', green))
+                            await self.sendmsg(target, f'Hello {nick}! Do you like ' + color('colors?', green))
         except (UnicodeDecodeError, UnicodeEncodeError):
             pass # Some IRCds allow invalid UTF-8 characters, this is a very important exception to catch
         except Exception as ex:
