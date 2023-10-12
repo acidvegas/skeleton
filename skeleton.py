@@ -1,10 +1,15 @@
 #!/usr/bin/env python
-# Skeleton IRC bot - developed by acidvegas in python (https://git.acid.vegas/skeleton)
+# irc bot skeleton - developed by acidvegas in python (https://git.acid.vegas/skeleton)
+
 import argparse
 import asyncio
 import logging
 import logging.handlers
 import ssl
+import time
+
+# Settings
+cmd_flood = 3 # Delay between bot command usage in seconds (In this case, anything prefixed with a ! is a command)
 
 # Formatting Control Characters / Color Codes
 bold        = '\x02'
@@ -29,21 +34,27 @@ pink        = '13'
 grey        = '14'
 light_grey  = '15'
 
-def color(msg: str, foreground: str, background: str='') -> str:
+def color(msg: str, foreground: str, background: str = None) -> str:
     '''
     Color a string with the specified foreground and background colors.
-    
+
     :param msg: The string to color.
     :param foreground: The foreground color to use.
     :param background: The background color to use.
     '''
     return f'\x03{foreground},{background}{msg}{reset}' if background else f'\x03{foreground}{msg}{reset}'
 
-def ssl_ctx() -> ssl.SSLContext:
-    '''Create a SSL context for the connection.'''
-    ctx = ssl.create_default_context()
-    ctx.verify_mode = ssl.CERT_NONE # Comment out this line to verify hosts
-    #ctx.load_cert_chain('/path/to/cert', password='loldongs')
+def ssl_ctx(verify: bool = False, cert_path: str = None, cert_pass: str = None) -> ssl.SSLContext:
+    '''
+    Create a SSL context for the connection.
+    
+    :param verify: Verify the SSL certificate.
+    :param cert_path: The path to the SSL certificate.
+    :param cert_pass: The password for the SSL certificate.
+    '''
+    ctx = ssl.create_default_context() if verify else ssl._create_unverified_context()
+    if cert_path:
+        ctx.load_cert_chain(cert_path) if not cert_pass else ctx.load_cert_chain(cert_path, cert_pass)
     return ctx
 
 class Bot():
@@ -53,6 +64,7 @@ class Bot():
         self.realname = 'Developement Bot'
         self.reader   = None
         self.writer   = None
+        self.last     = time.time()
 
     async def action(self, chan: str, msg: str):
         '''
@@ -66,7 +78,7 @@ class Bot():
     async def raw(self, data: str):
         '''
         Send raw data to the IRC server.
-		
+
         :param data: The raw data to send to the IRC server. (512 bytes max including crlf)
         '''
         self.writer.write(data[:510].encode('utf-8') + b'\r\n')
@@ -74,7 +86,7 @@ class Bot():
     async def sendmsg(self, target: str, msg: str):
         '''
         Send a PRIVMSG to the IRC server.
-        
+
         :param target: The target to send the PRIVMSG to. (channel or user)
         :param msg: The message to send to the target.
         '''
@@ -105,10 +117,45 @@ class Bot():
             finally:
                 await asyncio.sleep(30) # Wait 30 seconds before reconnecting
 
+    async def eventPRIVMSG(self, data: str):
+        '''
+        Handle the PRIVMSG event.
+
+        :param data: The data received from the IRC server.
+        '''
+        parts = data.split()
+        ident  = parts[0][1:] # nick!user@host
+        nick   = parts[0].split('!')[0][1:] # Nickname of the user who sent the message
+        target = parts[2] # Channel or user (us) the message was sent to
+        msg    = ' '.join(parts[3:])[1:]
+        if target == self.nickname: # Handle private messages
+            if ident == 'acidvegas!stillfree@big.dick.acid.vegas': # Admin only command based on ident
+                if msg.startswith('!raw') and len(msg.split()) > 1: # Only allow !raw if there is some data
+                    option = ' '.join(msg.split()[1:]) # Everything after !raw is stored here
+                    await self.raw(option) # Send raw data to the server FROM the bot
+            else:
+                await self.sendmsg(nick, 'Do NOT message me!') # Let's ignore anyone PM'ing the bot that isn't the admin
+        if target.startswith('#'): # Handle channel messages
+            if msg.startswith('!'):
+                if time.time() - self.last < cmd_flood: # Prevent command flooding
+                    if not self.slow: # The self.slow variable is used so that a warning is only issued one time
+                        self.slow = True
+                        await self.sendmsg(target, color('Slow down nerd!', red))
+                else: # Once we confirm the user isn't command flooding, we can handle the commands
+                    self.slow = False
+                    if msg == '!help':
+                        await self.action(target, 'explodes')
+                    elif msg == '!ping':
+                        await self.sendmsg(target, 'Pong!')
+                    elif msg.startswith('!say') and len(msg.split()) > 1: # Only allow !say if there is something to say
+                        option = ' '.join(msg.split()[1:]) # Everything after !say is stored here
+                        await self.sendmsg(target, option)
+                    self.last = time.time() # Update the last command time if it starts with ! character to prevent command flooding
+
     async def handle(self, data: str):
         '''
         Handle the data received from the IRC server.
-        
+
         :param data: The data received from the IRC server.
         '''
         logging.info(data)
@@ -130,23 +177,19 @@ class Bot():
             elif parts[1] == '433': # ERR_NICKNAMEINUSE
                 self.nickname += '_' # If the nickname is already in use, append an underscore to the end of it
                 await self.raw('NICK ' + self.nickname) # Send the new nickname to the server
+            elif parts[1] == 'INVITE':
+                target = parts[2]
+                chan = parts[3][1:]
+                if target == self.nickname: # If we were invited to a channel, join it
+                    await self.raw(f'JOIN {chan}')
             elif parts[1] == 'KICK':
                 chan   = parts[2]
                 kicked = parts[3]
-                if kicked == self.nickname:
+                if kicked == self.nickname: # If we were kicked from the channel, rejoin it after 3 seconds
                     await asyncio.sleep(3)
                     await self.raw(f'JOIN {chan}')
             elif parts[1] == 'PRIVMSG':
-                ident  = parts[0][1:]
-                nick   = parts[0].split('!')[0][1:]
-                target = parts[2]
-                msg    = ' '.join(parts[3:])[1:]
-                if target == self.nickname:
-                    pass # Handle private messages here
-                if target.startswith('#'): # Channel message
-                    if msg.startswith('!'):
-                        if msg == '!hello':
-                            await self.sendmsg(target, f'Hello {nick}! Do you like ' + color('colors?', green))
+                await self.eventPRIVMSG(data) # We put this in a separate function since it will likely be the most used/handled event
         except (UnicodeDecodeError, UnicodeEncodeError):
             pass # Some IRCds allow invalid UTF-8 characters, this is a very important exception to catch
         except Exception as ex:
@@ -158,6 +201,7 @@ def setup_logger(log_filename: str, to_file: bool = False):
     Set up logging to console & optionally to file.
 
     :param log_filename: The filename of the log file
+    :param to_file: Whether or not to log to a file
     '''
     sh = logging.StreamHandler()
     sh.setFormatter(logging.Formatter('%(asctime)s | %(levelname)9s | %(message)s', '%I:%M %p'))

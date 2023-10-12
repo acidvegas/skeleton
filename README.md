@@ -1,18 +1,18 @@
-# skeleton
-> asyncronous bot skeleton for the internet relay chat protocol
-
-## Requirements
-* [Python](https://www.python.org/downloads/) *(**Note:** This script was developed to be used with the latest version of Python)*
-
 ## Information
-This is just a basic structure to help setup a bot. The bots have no use by default. It is asyncronous, can log to file, handle basic I/O, flood control, etc.
+This is a basic skeleton for building your own bots for Internet Relay Chat usage. It is asyncronous, can log to file, handle basic I/O, flood control, etc.
 
-An example in Python & Golang (beta) are in this repository.
+A skeleton in Python & Golang *(beta)* are in this repository.
 
-## IRC RCF Reference
-- http://www.irchelp.org/protocol/rfc/
+Join **#dev** on **irc.supernets.org** for help building IRC bots frm scratch!
 
-___
+###### References
+- **RFC1459** - [Internet Relay Chat Protocol](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc1459.txt)
+- **RFC2810** - [Internet Relay Chat: Architecture](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc2810.txt)
+- **RFC2811** - [Internet Relay Chat: Channel Management](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc2811.txt)
+- **RFC2812** - [Internet Relay Chat: Client Protocol](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc2812.txt)
+- **RFC2813** - [Internet Relay Chat: Server Protocol](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc2813.txt)
+- **RFC7194** - [Default Port for Internet Relay Chat (IRC) via TLS/SSL](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc7194.txt)
+- [Numerics & Events](https://raw.githubusercontent.com/internet-relay-chat/archive/master/numerics.txt)
 
 ###### Mirrors
 [acid.vegas](https://git.acid.vegas/skeleton) • [GitHub](https://github.com/acidvegas/skeleton) • [GitLab](https://gitlab.com/acidvegas/skeleton) • [SuperNETs](https://git.supernets.org/acidvegas/skeleton)
