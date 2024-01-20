@@ -1,3 +1,5 @@
+// irc bot skeleton - developed by acidvegas in golang (https://git.acid.vegas/skeleton)
+
 package main
 
 import (

@@ -1,5 +1,5 @@
 ## Information
-This is a basic skeleton for building your own bots for Internet Relay Chat usage. It is asyncronous, can log to file, handle basic I/O, flood control, etc.
+This is a basic skeleton for building your own bots for Internet Relay Chat *(IRC)* usage. It is asyncronous, can log to file, handle basic I/O, flood control, etc.
 
 A skeleton in Python & Golang *(beta)* are in this repository.
 
@@ -14,5 +14,4 @@ Join **#dev** on **irc.supernets.org** for help building IRC bots frm scratch!
 - **RFC7194** - [Default Port for Internet Relay Chat (IRC) via TLS/SSL](https://raw.githubusercontent.com/internet-relay-chat/archive/master/rfc/rfc7194.txt)
 - [Numerics & Events](https://raw.githubusercontent.com/internet-relay-chat/archive/master/numerics.txt)
 
-###### Mirrors
-[acid.vegas](https://git.acid.vegas/skeleton) • [GitHub](https://github.com/acidvegas/skeleton) • [GitLab](https://gitlab.com/acidvegas/skeleton) • [SuperNETs](https://git.supernets.org/acidvegas/skeleton)
+###### Mirrors for this repository: [acid.vegas](https://git.acid.vegas/skeleton) • [SuperNETs](https://git.supernets.org/acidvegas/skeleton) • [GitHub](https://github.com/acidvegas/skeleton) • [GitLab](https://gitlab.com/acidvegas/skeleton) • [Codeberg](https://codeberg.org/acidvegas/skeleton)

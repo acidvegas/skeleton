@@ -34,6 +34,7 @@ pink        = '13'
 grey        = '14'
 light_grey  = '15'
 
+
 def color(msg: str, foreground: str, background: str = None) -> str:
 	'''
 	Color a string with the specified foreground and background colors.
@@ -43,6 +44,7 @@ def color(msg: str, foreground: str, background: str = None) -> str:
 	:param background: The background color to use.
 	'''
 	return f'\x03{foreground},{background}{msg}{reset}' if background else f'\x03{foreground}{msg}{reset}'
+
 
 def ssl_ctx(verify: bool = False, cert_path: str = None, cert_pass: str = None) -> ssl.SSLContext:
 	'''
@@ -57,6 +59,7 @@ def ssl_ctx(verify: bool = False, cert_path: str = None, cert_pass: str = None) 
 		ctx.load_cert_chain(cert_path) if not cert_pass else ctx.load_cert_chain(cert_path, cert_pass)
 	return ctx
 
+
 class Bot():
 	def __init__(self):
 		self.nickname = 'skeleton'
@@ -65,6 +68,7 @@ class Bot():
 		self.reader   = None
 		self.writer   = None
 		self.last     = time.time()
+
 
 	async def action(self, chan: str, msg: str):
 		'''
@@ -75,6 +79,7 @@ class Bot():
 		'''
 		await self.sendmsg(chan, f'\x01ACTION {msg}\x01')
 
+
 	async def raw(self, data: str):
 		'''
 		Send raw data to the IRC server.
@@ -82,6 +87,7 @@ class Bot():
 		:param data: The raw data to send to the IRC server. (512 bytes max including crlf)
 		'''
 		self.writer.write(data[:510].encode('utf-8') + b'\r\n')
+
 
 	async def sendmsg(self, target: str, msg: str):
 		'''
@@ -91,6 +97,7 @@ class Bot():
 		:param msg: The message to send to the target.
 		'''
 		await self.raw(f'PRIVMSG {target} :{msg}')
+
 
 	async def connect(self):
 		'''Connect to the IRC server.'''
@@ -116,6 +123,7 @@ class Bot():
 				logging.error(f'failed to connect to {args.server} ({str(ex)})')
 			finally:
 				await asyncio.sleep(30) # Wait 30 seconds before reconnecting
+
 
 	async def eventPRIVMSG(self, data: str):
 		'''
@@ -151,6 +159,7 @@ class Bot():
 						option = ' '.join(msg.split()[1:]) # Everything after !say is stored here
 						await self.sendmsg(target, option)
 					self.last = time.time() # Update the last command time if it starts with ! character to prevent command flooding
+
 
 	async def handle(self, data: str):
 		'''
@@ -211,6 +220,8 @@ def setup_logger(log_filename: str, to_file: bool = False):
 		logging.basicConfig(level=logging.NOTSET, handlers=(sh,fh))
 	else:
 		logging.basicConfig(level=logging.NOTSET, handlers=(sh,))
+
+
 
 if __name__ == '__main__':
 	parser = argparse.ArgumentParser(description="Connect to an IRC server.") # The arguments without -- are required arguments.
